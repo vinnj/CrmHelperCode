@@ -42,7 +42,7 @@ namespace UpdateHelper
         //USE LINQTOEXCEL METHODS TO PARSE THE XL FILE
         public ExcelQueryFactory ReadAcademicData()
         {
-         
+            
             var academicExcel = new ExcelQueryFactory(@"C:\AutoNumber\CRM\191.xlsx")
             {
                 DatabaseEngine = LinqToExcel.Domain.DatabaseEngine.Ace,
