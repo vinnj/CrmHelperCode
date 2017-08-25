@@ -31,10 +31,11 @@ namespace NoteAttachment
         //Certificate of Authority - C:\FilesToUpload\CertificateAuthority\CertificateAuthority.xlsx
         //Credit Reference - C:\FilesToUpload\CreditReference\CreditReference.xlsx
         //Contact ID proof - C:\FilesToUpload\Id\ContactId.xlsx
+        //Others - C:\FilesToUpload\Others\Others.xlsx
 
-        string fileLocation = @"C:\FilesToUpload\CertificateAuthority\CertificateAuthority.xlsx";
-        string folderLocation = @"C:\FilesToUpload\CertificateAuthority\";
-        string subject = "Certificate of Authority";
+        string fileLocation = @"C:\FilesToUpload\TestFile.xlsx";
+        string folderLocation = @"C:\FilesToUpload\Others\";
+        string subject = "Other";
 
         private ExcelQueryFactory ReadData()
         {
@@ -101,33 +102,36 @@ namespace NoteAttachment
 
         private void Annotation(string recordId, string fileName, string entity, string recordName)
         {
-            string connStr = ConfigurationManager.ConnectionStrings[1].ConnectionString;
+            if(fileName != null)
+            {
+                string connStr = ConfigurationManager.ConnectionStrings[1].ConnectionString;
 
-            CrmServiceClient conn = new CrmServiceClient(connStr);
+                CrmServiceClient conn = new CrmServiceClient(connStr);
 
-            IOrganizationService service = (IOrganizationService)conn.OrganizationServiceProxy;
-
-
-            FileStream _stream = File.OpenRead(folderLocation + fileName);
-            byte[] _bData = new byte[_stream.Length];
-            _stream.Read(_bData, 0, _bData.Length);
-            _stream.Close();
-            string encodedData = System.Convert.ToBase64String(_bData);
+                IOrganizationService service = (IOrganizationService)conn.OrganizationServiceProxy;
 
 
-            Entity _annotation = new Entity("annotation");
-            _annotation.Attributes["objectid"] = new EntityReference(entity, new Guid(recordId));
-            _annotation.Attributes["objecttypecode"] = entity;
-            _annotation.Attributes["subject"] = subject;
-            _annotation.Attributes["documentbody"] = encodedData;
-            _annotation.Attributes["mimetype"] = @"application/pdf";
-            //_annotation.Attributes["notetext"] = "Credit Reference";
-            _annotation.Attributes["filename"] = fileName;
+                FileStream _stream = File.OpenRead(folderLocation + fileName);
+                byte[] _bData = new byte[_stream.Length];
+                _stream.Read(_bData, 0, _bData.Length);
+                _stream.Close();
+                string encodedData = System.Convert.ToBase64String(_bData);
 
-            service.Create(_annotation);
 
-            Console.WriteLine("File attached to " + recordName);
+                Entity _annotation = new Entity("annotation");
+                _annotation.Attributes["objectid"] = new EntityReference(entity, new Guid(recordId));
+                _annotation.Attributes["objecttypecode"] = entity;
+                _annotation.Attributes["subject"] = subject;
+                _annotation.Attributes["documentbody"] = encodedData;
+                _annotation.Attributes["mimetype"] = @"application/pdf";
+                //_annotation.Attributes["notetext"] = "Credit Reference";
+                _annotation.Attributes["filename"] = fileName;
 
+                service.Create(_annotation);
+
+                Console.WriteLine("File attached to " + recordName);
+            }
+           
         }
     }
 }

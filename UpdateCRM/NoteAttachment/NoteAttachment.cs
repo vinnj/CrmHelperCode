@@ -25,17 +25,16 @@ namespace NoteAttachment
 
         //Change these values as required
 
-        //KYC - C:\FilesToUpload\KYC\KYC.xlsx
-        //Screnning Report - C:\FilesToUpload\ScreeningReport\ScreeningReport.xlsx
-        //MLRO - C:\FilesToUpload\MLRO\MLRO.xlsx
-        //Agreement - C:\FilesToUpload\Agreement.Agreement.xlsx
-        //Certificate of Authority - C:\FilesToUpload\CertificateAuthority\CertificateAuthority.xlsx
-        //Credit Reference - C:\FilesToUpload\CreditReference\CreditReference.xlsx
-        //Contact ID proof - C:\FilesToUpload\Id\ContactId.xlsx
+        //KYC - C:\FilesToUpload\KYC\KYC.xlsx Subject - KYC
+        //Screnning Report - C:\FilesToUpload\ScreeningReport\ScreeningReport.xlsx Subject - Screening Report
+        //MLRO - C:\FilesToUpload\MLRO\MLRO.xlsx Subject - MLRO
+        //Certificate of Authority - C:\FilesToUpload\CertificateAuthority\CertificateAuthority.xlsx //Subject - CertificateOfIncorporation
+        //Credit Reference - C:\FilesToUpload\CreditReference\CreditReference.xlsx //Subject - CertificateOfIncorporation
+        //st120 - C:\FilesToUpload\ST120\st120.xlsx Subject - ST120
 
-        string fileLocation = @"C:\FilesToUpload\CertificateAuthority\CertificateAuthority.xlsx";
-        string folderLocation = @"C:\FilesToUpload\CertificateAuthority\";
-        string subject = "Certificate of Authority";
+        string fileLocation = @"C:\FilesToUpload\ST120\st120.xlsx";
+        string folderLocation = @"C:\FilesToUpload\ST120\";
+        string subject = "ST120";
         
         private ExcelQueryFactory ReadData()
         {
@@ -102,37 +101,39 @@ namespace NoteAttachment
 
         private void Annotation(string recordId, string fileName, string entity, string recordName)
         {
-            string connStr = ConfigurationManager.ConnectionStrings[1].ConnectionString;
+            if(fileName != null)
+            {
+                string connStr = ConfigurationManager.ConnectionStrings[1].ConnectionString;
 
-            CrmServiceClient conn = new CrmServiceClient(connStr);
+                CrmServiceClient conn = new CrmServiceClient(connStr);
 
-            IOrganizationService service = (IOrganizationService)conn.OrganizationServiceProxy;
-
-
-            FileStream _stream = File.OpenRead(folderLocation + fileName);
-            byte[] _bData = new byte[_stream.Length];
-            _stream.Read(_bData, 0, _bData.Length);
-            _stream.Close();
-            string encodedData = System.Convert.ToBase64String(_bData);
+                IOrganizationService service = (IOrganizationService)conn.OrganizationServiceProxy;
 
 
-            Entity _annotation = new Entity("annotation");
-            _annotation.Attributes["objectid"] = new EntityReference(entity, new Guid(recordId));
-            _annotation.Attributes["objecttypecode"] = entity;
-            _annotation.Attributes["subject"] = subject;
-            _annotation.Attributes["documentbody"] = encodedData;
-            _annotation.Attributes["mimetype"] = @"application/pdf";
-            //_annotation.Attributes["notetext"] = "Credit Reference";
-            _annotation.Attributes["filename"] = fileName;
+                FileStream _stream = File.OpenRead(folderLocation + fileName);
+                byte[] _bData = new byte[_stream.Length];
+                _stream.Read(_bData, 0, _bData.Length);
+                _stream.Close();
+                string encodedData = System.Convert.ToBase64String(_bData);
 
-            service.Create(_annotation);
 
-            Console.WriteLine("File attached to " + recordName);
+                Entity _annotation = new Entity("annotation");
+                _annotation.Attributes["objectid"] = new EntityReference(entity, new Guid(recordId));
+                _annotation.Attributes["objecttypecode"] = entity;
+                _annotation.Attributes["subject"] = subject;
+                _annotation.Attributes["documentbody"] = encodedData;
+                _annotation.Attributes["mimetype"] = @"application/pdf";
+                //_annotation.Attributes["notetext"] = "Credit Reference";
+                _annotation.Attributes["filename"] = fileName;
 
+                service.Create(_annotation);
+
+                Console.WriteLine("File attached to " + recordName);
+            }
+            
         }
 
     }
-
 
 }
 
